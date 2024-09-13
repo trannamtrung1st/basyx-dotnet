@@ -14,7 +14,7 @@ namespace BaSyx.Models.Connectivity
 {
     public class HttpProtocol : ProtocolInformation
     {
-        public HttpProtocol(string endpointAddress) : base(endpointAddress)
+        public HttpProtocol(string href) : base(href)
         { }
 
         public HttpProtocol(Uri uri) : this(uri?.ToString())

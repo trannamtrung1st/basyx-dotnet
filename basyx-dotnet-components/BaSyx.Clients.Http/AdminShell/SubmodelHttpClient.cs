@@ -53,8 +53,8 @@ namespace BaSyx.Clients.AdminShell.Http
         public SubmodelHttpClient(Uri endpoint, HttpMessageHandler messageHandler, bool standalone = true) : this(messageHandler, standalone)
         {
             endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            string endpointAddress = endpoint.ToString();
-            Endpoint = new Endpoint(endpointAddress.RemoveFromEnd(SubmodelRoutes.SUBMODEL), InterfaceName.SubmodelInterface);
+            string href = endpoint.ToString();
+            Endpoint = new Endpoint(href.RemoveFromEnd(SubmodelRoutes.SUBMODEL), InterfaceName.SubmodelInterface);
         }
         public SubmodelHttpClient(ISubmodelDescriptor submodelDescriptor, bool standalone = true, bool preferHttps = true) : this(submodelDescriptor, null, standalone, preferHttps)
         { }
@@ -68,16 +68,16 @@ namespace BaSyx.Clients.AdminShell.Http
             if (httpEndpoint == null)
                 httpEndpoint = submodelDescriptor.Endpoints?.FirstOrDefault(p => p.ProtocolInformation?.EndpointProtocol == Uri.UriSchemeHttp);
 
-            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.EndpointAddress))
+            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.Href))
                 throw new Exception("There is no http endpoint for instantiating a client");
 
-            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.EndpointAddress.RemoveFromEnd(SubmodelRoutes.SUBMODEL),
+            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.Href.RemoveFromEnd(SubmodelRoutes.SUBMODEL),
                 InterfaceName.SubmodelInterface);           
         }
 
         public Uri GetPath(string requestPath = null, string idShortPath = null)
         {
-            string path = Endpoint.ProtocolInformation.EndpointAddress.Trim('/');
+            string path = Endpoint.ProtocolInformation.Href.Trim('/');
 
             if (_standalone)
                 path += SubmodelRoutes.SUBMODEL;

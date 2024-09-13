@@ -21,9 +21,9 @@ namespace BaSyx.Models.Connectivity
         [IgnoreDataMember]
         public string Topic { get; }
 
-        public MqttProtocol(string endpointAddress) : base (endpointAddress)
+        public MqttProtocol(string href) : base (href)
         {
-            Uri uri = new Uri(endpointAddress);
+            Uri uri = new Uri(href);
             BrokerUri = new Uri(uri.AbsoluteUri);
             Topic = uri.AbsolutePath;
         }

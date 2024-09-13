@@ -15,7 +15,8 @@
     <PackageIconUrl />
     <LangVersion>8.0</LangVersion>
     <Configurations>Debug;Release;Azure</Configurations>
-    <Version>2.0.14</Version><PublishReadyToRun>true</PublishReadyToRun>
+    <Version>2.0.14</Version>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,14 +28,9 @@
     <ProjectReference Include="..\BaSyx.Clients.Http\BaSyx.Clients.Http.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('..\..\basyx-dotnet-sdk\')">
+  <ItemGroup>
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.API\BaSyx.API.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="!Exists('..\..\basyx-dotnet-sdk\')">
-    <PackageReference Include="BaSyx.API" Version="*" />
-  </ItemGroup>
-
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>

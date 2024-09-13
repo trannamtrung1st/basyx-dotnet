@@ -121,7 +121,7 @@ namespace BaSyx.Discovery.mDNS
             {
                 foreach (var aasEndpoint in aasDescriptor.Endpoints.ToList())
                 {
-                    Uri endpoint = new Uri(aasEndpoint.ProtocolInformation.EndpointAddress);
+                    Uri endpoint = new Uri(aasEndpoint.ProtocolInformation.Href);
                     bool endpointValid = CheckEndpoint(endpoint, servers);
                     if (!endpointValid)
                         aasDescriptor.DeleteEndpoint(aasEndpoint);
@@ -130,7 +130,7 @@ namespace BaSyx.Discovery.mDNS
                 {
                     foreach (var smEndpoint in smDescriptor.Endpoints.ToList())
                     {
-                        Uri endpoint = new Uri(smEndpoint.ProtocolInformation.EndpointAddress);
+                        Uri endpoint = new Uri(smEndpoint.ProtocolInformation.Href);
                         bool endpointValid = CheckEndpoint(endpoint, servers);
                         if (!endpointValid)
                             smDescriptor.DeleteEndpoint(smEndpoint);
@@ -163,7 +163,7 @@ namespace BaSyx.Discovery.mDNS
         {
             public bool Equals(IEndpoint x, IEndpoint y)
             {
-                if (x.ProtocolInformation.EndpointAddress == y.ProtocolInformation.EndpointAddress)
+                if (x.ProtocolInformation.Href == y.ProtocolInformation.Href)
                     return true;
                 else
                     return false;
@@ -222,7 +222,7 @@ namespace BaSyx.Discovery.mDNS
             int port = -1;
             foreach (var endpoint in serviceProvider.ServiceDescriptor.Endpoints)
             {
-                Uri uriEndpoint = new Uri(endpoint.ProtocolInformation.EndpointAddress);
+                Uri uriEndpoint = new Uri(endpoint.ProtocolInformation.Href);
                 if(port == -1)
                     port = uriEndpoint.Port;
 
@@ -245,7 +245,7 @@ namespace BaSyx.Discovery.mDNS
             for (int i = 0; i < serviceProvider.ServiceDescriptor.Endpoints.Count(); i++)
             {
                 var endpoint = serviceProvider.ServiceDescriptor.Endpoints.ElementAt(i);
-                discoveryClient.AddProperty(ASSETADMINISTRATIONSHELL_ENDPOINT + "." + endpoint.ProtocolInformation.EndpointProtocol + "." + i, endpoint.ProtocolInformation.EndpointAddress);
+                discoveryClient.AddProperty(ASSETADMINISTRATIONSHELL_ENDPOINT + "." + endpoint.ProtocolInformation.EndpointProtocol + "." + i, endpoint.ProtocolInformation.Href);
             }
    
             discoveryClient.Start();
@@ -262,7 +262,7 @@ namespace BaSyx.Discovery.mDNS
             int port = -1;
             foreach (var endpoint in serviceProvider.ServiceDescriptor.Endpoints)
             {
-                Uri uriEndpoint = new Uri(endpoint.ProtocolInformation.EndpointAddress);
+                Uri uriEndpoint = new Uri(endpoint.ProtocolInformation.Href);
                 if (port == -1)
                     port = uriEndpoint.Port;
 
@@ -288,7 +288,7 @@ namespace BaSyx.Discovery.mDNS
                 for (int i = 0; i < aasDescriptor.Endpoints.Count(); i++)
                 {
                     var endpoint = aasDescriptor.Endpoints.ElementAt(i);
-                    discoveryClient.AddProperty(ASSETADMINISTRATIONSHELL_ENDPOINT + "." + endpoint.ProtocolInformation.EndpointProtocol + "." + i, endpoint.ProtocolInformation.EndpointAddress);
+                    discoveryClient.AddProperty(ASSETADMINISTRATIONSHELL_ENDPOINT + "." + endpoint.ProtocolInformation.EndpointProtocol + "." + i, endpoint.ProtocolInformation.Href);
                 }
                 discoveryClients.Add(discoveryClient);
                 discoveryClient.Start();

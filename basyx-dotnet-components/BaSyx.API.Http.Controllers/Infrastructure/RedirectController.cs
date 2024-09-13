@@ -19,7 +19,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BaSyx.Registry.Server.Http.App.Controllers
+namespace BaSyx.API.Http.Controllers.Infrastructure
 {
     public class RedirectController : Controller
     {
@@ -53,7 +53,7 @@ namespace BaSyx.Registry.Server.Http.App.Controllers
             aasIdentifier = ResultHandling.Base64UrlDecode(aasIdentifier);
             var result = serviceProvider.RetrieveAssetAdministrationShellRegistration(aasIdentifier);
 
-            if(!result.Success)
+            if (!result.Success)
                 return result.CreateActionResult(CrudOperation.Retrieve);
 
             try
@@ -64,7 +64,7 @@ namespace BaSyx.Registry.Server.Http.App.Controllers
                     bool pingable = await NetworkUtils.PingHostAsync(endpoint.ProtocolInformation.Uri.Host);
                     if (pingable)
                     {
-                        return Redirect(endpoint.ProtocolInformation.EndpointAddress.Replace("/aas", "/" + toWhat));
+                        return Redirect(endpoint.ProtocolInformation.Href.Replace("/aas", "/" + toWhat));
                     }
                 }
 

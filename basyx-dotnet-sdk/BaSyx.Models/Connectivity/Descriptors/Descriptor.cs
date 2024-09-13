@@ -37,7 +37,7 @@ namespace BaSyx.Models.Connectivity
         {
             foreach (var endpoint in endpoints)
             {
-                int index = _endpoints.FindIndex(e => e.ProtocolInformation.EndpointAddress == endpoint.ProtocolInformation.EndpointAddress);
+                int index = _endpoints.FindIndex(e => e.ProtocolInformation.Href == endpoint.ProtocolInformation.Href);
                 if (index == -1)
                     _endpoints.Add(endpoint);
             }
@@ -50,7 +50,7 @@ namespace BaSyx.Models.Connectivity
 
         public void DeleteEndpoint(IEndpoint endpoint)
         {
-            int index = _endpoints.FindIndex(e => e.ProtocolInformation.EndpointAddress == endpoint.ProtocolInformation.EndpointAddress);
+            int index = _endpoints.FindIndex(e => e.ProtocolInformation.Href == endpoint.ProtocolInformation.Href);
             _endpoints.RemoveAt(index);
         }
     }

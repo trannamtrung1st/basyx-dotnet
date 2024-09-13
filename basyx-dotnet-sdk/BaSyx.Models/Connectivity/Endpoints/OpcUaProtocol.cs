@@ -21,9 +21,9 @@ namespace BaSyx.Models.Connectivity
         [IgnoreDataMember]
         public string Authority { get; }
 
-        public OpcUaProtocol(string endpointAddress) : base(endpointAddress)
+        public OpcUaProtocol(string href) : base(href)
         {
-            Uri uri = new Uri(endpointAddress);
+            Uri uri = new Uri(href);
             BrowsePath = uri.AbsolutePath;
             Authority = uri.Authority;
         }

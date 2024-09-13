@@ -17,14 +17,10 @@
     <Version>2.0.16</Version>
     <PublishReadyToRun>true</PublishReadyToRun>
     <Configurations>Debug;Release;Azure</Configurations>
-  </PropertyGroup> 
+  </PropertyGroup>
 
-  <ItemGroup Condition="Exists('..\..\basyx-dotnet-sdk\')">
+  <ItemGroup>
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.API\BaSyx.API.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="!Exists('..\..\basyx-dotnet-sdk\')">
-    <PackageReference Include="BaSyx.API" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

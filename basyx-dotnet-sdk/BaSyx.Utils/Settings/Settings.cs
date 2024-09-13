@@ -160,7 +160,7 @@ namespace BaSyx.Utils.Settings
         }
         public static T LoadSettingsByName<T>(string name) where T : Settings
         {
-            Settings settings = SettingsCollection.Find(s => s.Name == typeof(T).Name);
+            Settings settings = SettingsCollection.Find(s => s.Name == name);
             if (settings != null)
                 return (T)settings;
             return null;

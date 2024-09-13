@@ -77,13 +77,13 @@
                                 <li class="list-group-item">
                                     <div class="row align-items-center">
                                         <div class="col-sm-2"><b>Endpoint (@endpoint.ProtocolInformation.EndpointProtocol)</b></div>
-                                        <div class="col-sm-10"><a target="_blank" href="@endpoint.ProtocolInformation.EndpointAddress">@endpoint.ProtocolInformation.EndpointAddress</a></div>
+                                        <div class="col-sm-10"><a target="_blank" href="@endpoint.ProtocolInformation.Href">@endpoint.ProtocolInformation.Href</a></div>
                                     </div>
                                 </li>
                                 @if (((endpoint.ProtocolInformation.EndpointProtocol == Uri.UriSchemeHttp) || (endpoint.ProtocolInformation.EndpointProtocol == Uri.UriSchemeHttps))
-                                   && !string.IsNullOrEmpty(endpoint.ProtocolInformation.EndpointAddress) && endpoint.ProtocolInformation.EndpointAddress.EndsWith("/aas"))
+                                   && !string.IsNullOrEmpty(endpoint.ProtocolInformation.Href) && endpoint.ProtocolInformation.Href.EndsWith("/aas"))
                                 {
-                                    var httpEndpoint = new Uri(endpoint.ProtocolInformation.EndpointAddress);
+                                    var httpEndpoint = new Uri(endpoint.ProtocolInformation.Href);
                                     string uiEndpoint = httpEndpoint.GetLeftPart(UriPartial.Authority) + "/ui";
                                     <li class="list-group-item">
                                         <div class="row align-items-center">
@@ -130,7 +130,7 @@
                                                             <li class="list-group-item">
                                                                 <div class="row align-items-center">
                                                                     <div class="col-sm-2"><b>Endpoint (@endpoint.ProtocolInformation.EndpointProtocol)</b></div>
-                                                                    <div class="col-sm-10"><a target="_blank" href="@endpoint.ProtocolInformation.EndpointAddress">@endpoint.ProtocolInformation.EndpointAddress</a></div>
+                                                                    <div class="col-sm-10"><a target="_blank" href="@endpoint.ProtocolInformation.Href">@endpoint.ProtocolInformation.Href</a></div>
                                                                 </div>
                                                             </li>
                                                         }

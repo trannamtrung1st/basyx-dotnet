@@ -15,7 +15,8 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-    <Version>2.0.14</Version><PublishReadyToRun>true</PublishReadyToRun>
+    <Version>2.0.14</Version>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,18 +32,11 @@
     <ProjectReference Include="..\BaSyx.Components.Common.Abstractions\BaSyx.Components.Common.Abstractions.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('..\..\basyx-dotnet-sdk\')">
+  <ItemGroup>
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.API\BaSyx.API.csproj" />
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.Utils.DependencyInjection\BaSyx.Utils.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.Utils\BaSyx.Utils.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="!Exists('..\..\basyx-dotnet-sdk\')">
-    <PackageReference Include="BaSyx.API" Version="*" />
-    <PackageReference Include="BaSyx.Utils.DependencyInjection" Version="*" />
-    <PackageReference Include="BaSyx.Utils" Version="*" />
-  </ItemGroup>
-
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>

@@ -40,9 +40,27 @@ namespace BaSyx.Registry.Server.Http
                 services.AddSingleton<IAssetAdministrationShellRegistryInterface>(aasRegistryProvider);
                 services.AddMvc((options) =>
                 {
-                options.Conventions.Add(new ControllerConvention(this)
-                    .Include(typeof(AssetAdministrationShellRegistryController))
-                    .Include(typeof(DescriptionController)));
+                    options.Conventions.Add(new ControllerConvention(this)
+                        .Include(typeof(AssetAdministrationShellRegistryController))
+                        .Include(typeof(DescriptionController)));
+                });
+            });
+        }
+
+        public void SetRegistryProvider(
+            IAssetAdministrationShellRegistryInterface aasRegistryProvider,
+            ISubmodelRegistryInterface smRegistryProvider)
+        {
+            WebHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(aasRegistryProvider)
+                    .AddSingleton(smRegistryProvider);
+                services.AddMvc((options) =>
+                {
+                    options.Conventions.Add(new ControllerConvention(this)
+                        .Include(typeof(AssetAdministrationShellRegistryController))
+                        .Include(typeof(SubmodelRegistryController))
+                        .Include(typeof(DescriptionController)));
                 });
             });
         }

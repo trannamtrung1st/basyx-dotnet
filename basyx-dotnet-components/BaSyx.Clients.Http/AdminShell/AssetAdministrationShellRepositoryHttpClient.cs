@@ -47,8 +47,8 @@ namespace BaSyx.Clients.AdminShell.Http
         public AssetAdministrationShellRepositoryHttpClient(Uri endpoint, HttpMessageHandler messageHandler) : this(messageHandler)
         {
             endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            string endpointAddress = endpoint.ToString();
-            Endpoint = new Endpoint(endpointAddress.RemoveFromEnd(AssetAdministrationShellRepositoryRoutes.SHELLS), 
+            string href = endpoint.ToString();
+            Endpoint = new Endpoint(href.RemoveFromEnd(AssetAdministrationShellRepositoryRoutes.SHELLS), 
                 InterfaceName.AssetAdministrationShellRepositoryInterface);
         }
         public AssetAdministrationShellRepositoryHttpClient(IAssetAdministrationShellRepositoryDescriptor aasRepoDescriptor, bool preferHttps = true) : this(aasRepoDescriptor, null, preferHttps)
@@ -63,16 +63,16 @@ namespace BaSyx.Clients.AdminShell.Http
             if (httpEndpoint == null)
                 httpEndpoint = aasRepoDescriptor.Endpoints?.FirstOrDefault(p => p.ProtocolInformation?.EndpointProtocol == Uri.UriSchemeHttp);
 
-            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.EndpointAddress))
+            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.Href))
                 throw new Exception("There is no http endpoint for instantiating a client");
 
-            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.EndpointAddress.RemoveFromEnd(AssetAdministrationShellRepositoryRoutes.SHELLS),
+            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.Href.RemoveFromEnd(AssetAdministrationShellRepositoryRoutes.SHELLS),
                 InterfaceName.AssetAdministrationShellRepositoryInterface);
         }
 
         public Uri GetPath(string requestPath, string aasIdentifier = null, string submodelIdentifier = null, string idShortPath = null)
         {
-            string path = Endpoint.ProtocolInformation.EndpointAddress.Trim('/');
+            string path = Endpoint.ProtocolInformation.Href.Trim('/');
 
             if (string.IsNullOrEmpty(requestPath))
                 return new Uri(path);

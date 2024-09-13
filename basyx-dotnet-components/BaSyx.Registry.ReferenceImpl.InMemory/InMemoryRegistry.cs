@@ -20,7 +20,7 @@ using System.Collections.Concurrent;
 
 namespace BaSyx.Registry.ReferenceImpl.InMemory
 {
-    public class InMemoryRegistry : IAssetAdministrationShellRegistryInterface
+    public class InMemoryRegistry : IAssetAdministrationShellRegistryInterface, ISubmodelRegistryInterface
     {
         private static readonly ILogger logger = LoggingExtentions.CreateLogger<InMemoryRegistry>();
 
@@ -29,6 +29,13 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
         public InMemoryRegistry()
         {
             _descriptors = new ConcurrentDictionary<string, IAssetAdministrationShellDescriptor>();
+        }
+
+        public InMemoryRegistry(IEnumerable<IAssetAdministrationShellDescriptor> descriptors)
+        {
+            _descriptors = new ConcurrentDictionary<string, IAssetAdministrationShellDescriptor>();
+            foreach (var descriptor in descriptors)
+                _descriptors[descriptor.Id] = descriptor;
         }
 
         public IResult<IAssetAdministrationShellDescriptor> CreateAssetAdministrationShellRegistration(IAssetAdministrationShellDescriptor aasDescriptor)
@@ -47,14 +54,14 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
 
         public IResult UpdateAssetAdministrationShellRegistration(string aasId, IAssetAdministrationShellDescriptor aasDescriptor)
         {
-            if(string.IsNullOrEmpty(aasId))
+            if (string.IsNullOrEmpty(aasId))
                 return new Result(new ArgumentNullException(nameof(aasId)));
             if (aasDescriptor == null)
                 return new Result(new ArgumentNullException(nameof(aasDescriptor)));
             if (aasDescriptor.Id?.Id == null)
                 return new Result(new ArgumentNullException(nameof(aasDescriptor.Id)));
 
-            if(_descriptors.TryGetValue(aasId, out var oldDescriptor))
+            if (_descriptors.TryGetValue(aasId, out var oldDescriptor))
             {
                 bool success = _descriptors.TryUpdate(aasId, aasDescriptor, oldDescriptor);
                 if (success)
@@ -63,7 +70,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
                     return new Result(false, new ErrorMessage($"Unable to update descriptor with {aasDescriptor.Id.Id}"));
             }
             else
-                return new Result(false, new NotFoundMessage($"Descriptor with {aasDescriptor.Id.Id}"));            
+                return new Result(false, new NotFoundMessage($"Descriptor with {aasDescriptor.Id.Id}"));
         }
 
         public IResult<ISubmodelDescriptor> CreateSubmodelRegistration(string aasId, ISubmodelDescriptor submodelDescriptor)
@@ -78,7 +85,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
             if (_descriptors.TryGetValue(aasId, out var descriptor))
             {
                 descriptor.AddSubmodelDescriptor(submodelDescriptor);
-                return new Result<ISubmodelDescriptor>(true, submodelDescriptor);               
+                return new Result<ISubmodelDescriptor>(true, submodelDescriptor);
             }
             else
                 return new Result<ISubmodelDescriptor>(false, new NotFoundMessage($"Descriptor with {aasId}"));
@@ -95,7 +102,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
 
             if (_descriptors.TryGetValue(aasId, out var descriptor))
             {
-                if(descriptor.SubmodelDescriptors.Contains(submodelDescriptor, new DescriptorComparer()))
+                if (descriptor.SubmodelDescriptors.Contains(submodelDescriptor, new DescriptorComparer()))
                 {
                     descriptor.RemoveSubmodelDescriptor(submodelId);
                     descriptor.AddSubmodelDescriptor(submodelDescriptor);
@@ -161,7 +168,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
         public IResult<PagedResult<IEnumerable<IAssetAdministrationShellDescriptor>>> RetrieveAllAssetAdministrationShellRegistrations(Predicate<IAssetAdministrationShellDescriptor> predicate)
         {
             var allDescriptors = RetrieveAllAssetAdministrationShellRegistrations();
-            return new Result<PagedResult<IEnumerable<IAssetAdministrationShellDescriptor>>>(allDescriptors.Success, 
+            return new Result<PagedResult<IEnumerable<IAssetAdministrationShellDescriptor>>>(allDescriptors.Success,
                 new PagedResult<IEnumerable<IAssetAdministrationShellDescriptor>>(allDescriptors.Entity.Result.Where(ConvertToFunc(predicate))));
         }
 
@@ -176,7 +183,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
             return new Result<PagedResult<IEnumerable<IAssetAdministrationShellDescriptor>>>(true, aasDescriptors);
         }
 
-         public IResult<ISubmodelDescriptor> RetrieveSubmodelRegistration(string aasId, string submodelId)
+        public IResult<ISubmodelDescriptor> RetrieveSubmodelRegistration(string aasId, string submodelId)
         {
             if (string.IsNullOrEmpty(aasId))
                 return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(aasId)));
@@ -198,7 +205,7 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
         public IResult<PagedResult<IEnumerable<ISubmodelDescriptor>>> RetrieveAllSubmodelRegistrations(string aasId, Predicate<ISubmodelDescriptor> predicate)
         {
             var allDescriptors = RetrieveAllSubmodelRegistrations(aasId);
-            return new Result<PagedResult<IEnumerable<ISubmodelDescriptor>>>(allDescriptors.Success, 
+            return new Result<PagedResult<IEnumerable<ISubmodelDescriptor>>>(allDescriptors.Success,
                 new PagedResult<IEnumerable<ISubmodelDescriptor>>(allDescriptors.Entity.Result.Where(ConvertToFunc(predicate))));
         }
 
@@ -213,6 +220,103 @@ namespace BaSyx.Registry.ReferenceImpl.InMemory
             }
             else
                 return new Result<PagedResult<IEnumerable<ISubmodelDescriptor>>>(false, new NotFoundMessage($"Descriptor with {aasId}"));
+        }
+
+        public IResult<ISubmodelDescriptor> CreateSubmodelRegistration(ISubmodelDescriptor submodelDescriptor)
+        {
+            if (submodelDescriptor == null)
+                return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(submodelDescriptor)));
+            if (submodelDescriptor.Id?.Id == null)
+                return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(submodelDescriptor.Id)));
+
+            foreach (var descriptor in _descriptors.Values)
+            {
+                if (descriptor.SubmodelDescriptors.Any(s => s.Id.Id == submodelDescriptor.Id.Id))
+                {
+                    return new Result<ISubmodelDescriptor>(false, new ConflictMessage($"Submodel Descriptor with {submodelDescriptor.Id.Id} already exists"));
+                }
+            }
+
+            // Add the submodel descriptor to the first AAS descriptor (you might want to change this logic)
+            var firstAasDescriptor = _descriptors.Values.FirstOrDefault();
+            if (firstAasDescriptor != null)
+            {
+                firstAasDescriptor.AddSubmodelDescriptor(submodelDescriptor);
+                return new Result<ISubmodelDescriptor>(true, submodelDescriptor);
+            }
+            else
+            {
+                return new Result<ISubmodelDescriptor>(false, new NotFoundMessage("No Asset Administration Shell Descriptor found"));
+            }
+        }
+
+        public IResult<ISubmodelDescriptor> UpdateSubmodelRegistration(string submodelIdentifier, ISubmodelDescriptor submodelDescriptor)
+        {
+            if (string.IsNullOrEmpty(submodelIdentifier))
+                return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(submodelIdentifier)));
+            if (submodelDescriptor == null)
+                return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(submodelDescriptor)));
+
+            foreach (var aasDescriptor in _descriptors.Values)
+            {
+                var existingSubmodel = aasDescriptor.SubmodelDescriptors.FirstOrDefault(s => s.Id.Id == submodelIdentifier);
+                if (existingSubmodel != null)
+                {
+                    aasDescriptor.RemoveSubmodelDescriptor(submodelIdentifier);
+                    aasDescriptor.AddSubmodelDescriptor(submodelDescriptor);
+                    return new Result<ISubmodelDescriptor>(true, submodelDescriptor);
+                }
+            }
+
+            return new Result<ISubmodelDescriptor>(false, new NotFoundMessage($"Submodel Descriptor with {submodelIdentifier} not found"));
+        }
+
+        public IResult<IEnumerable<ISubmodelDescriptor>> RetrieveAllSubmodelRegistrations()
+        {
+            var allSubmodels = _descriptors.Values.SelectMany(aas => aas.SubmodelDescriptors);
+            return new Result<IEnumerable<ISubmodelDescriptor>>(true, allSubmodels);
+        }
+
+        public IResult<IEnumerable<ISubmodelDescriptor>> RetrieveAllSubmodelRegistrations(Predicate<ISubmodelDescriptor> predicate)
+        {
+            var allSubmodels = _descriptors.Values.SelectMany(aas => aas.SubmodelDescriptors);
+            var filteredSubmodels = allSubmodels.Where(s => predicate(s));
+            return new Result<IEnumerable<ISubmodelDescriptor>>(true, filteredSubmodels);
+        }
+
+        public IResult<ISubmodelDescriptor> RetrieveSubmodelRegistration(string submodelIdentifier)
+        {
+            if (string.IsNullOrEmpty(submodelIdentifier))
+                return new Result<ISubmodelDescriptor>(new ArgumentNullException(nameof(submodelIdentifier)));
+
+            foreach (var aasDescriptor in _descriptors.Values)
+            {
+                var submodel = aasDescriptor.SubmodelDescriptors.FirstOrDefault(s => s.Id.Id == submodelIdentifier);
+                if (submodel != null)
+                {
+                    return new Result<ISubmodelDescriptor>(true, submodel);
+                }
+            }
+
+            return new Result<ISubmodelDescriptor>(false, new NotFoundMessage($"Submodel Descriptor with {submodelIdentifier} not found"));
+        }
+
+        public IResult DeleteSubmodelRegistration(string submodelIdentifier)
+        {
+            if (string.IsNullOrEmpty(submodelIdentifier))
+                return new Result(new ArgumentNullException(nameof(submodelIdentifier)));
+
+            foreach (var aasDescriptor in _descriptors.Values)
+            {
+                var submodel = aasDescriptor.SubmodelDescriptors.FirstOrDefault(s => s.Id.Id == submodelIdentifier);
+                if (submodel != null)
+                {
+                    aasDescriptor.RemoveSubmodelDescriptor(submodelIdentifier);
+                    return new Result(true);
+                }
+            }
+
+            return new Result(false, new NotFoundMessage($"Submodel Descriptor with {submodelIdentifier} not found"));
         }
     }
 

@@ -23,11 +23,11 @@ namespace BaSyx.Models.Connectivity
 
         private List<IAssetAdministrationShellDescriptor> _assetAdministrationShellDescriptors;
 
-        public AssetAdministrationShellRepositoryDescriptor(IEnumerable<IEndpoint> endpoints) : base (endpoints)
+        public AssetAdministrationShellRepositoryDescriptor(IEnumerable<IEndpoint> endpoints) : base(endpoints)
         {
             _assetAdministrationShellDescriptors = new List<IAssetAdministrationShellDescriptor>();
         }
-     
+
         public AssetAdministrationShellRepositoryDescriptor(IEnumerable<IAssetAdministrationShell> shells, IEnumerable<IEndpoint> endpoints) : this(endpoints)
         {
             if (shells?.Count() > 0)
@@ -39,11 +39,12 @@ namespace BaSyx.Models.Connectivity
 
         public void AddAssetAdministrationShell(IAssetAdministrationShell aas)
         {
-            AssetAdministrationShellDescriptor assetAdministrationShellDescriptor = new AssetAdministrationShellDescriptor(aas, Endpoints.ToList());
+            var assetAdministrationShellDescriptor = new AssetAdministrationShellDescriptor(aas, endpoints: null);
+
             if (aas.Submodels?.Count() > 0)
                 foreach (var submodel in aas.Submodels.Values)
                 {
-                    assetAdministrationShellDescriptor.AddSubmodel(submodel, Endpoints.ToList());
+                    assetAdministrationShellDescriptor.AddSubmodel(submodel, submodelEndpoints: null);
                 }
 
             _assetAdministrationShellDescriptors.Add(assetAdministrationShellDescriptor);

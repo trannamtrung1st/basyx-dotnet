@@ -51,8 +51,8 @@ namespace BaSyx.Clients.AdminShell.Http
         public AssetAdministrationShellHttpClient(Uri endpoint, HttpMessageHandler messageHandler, bool standalone = true) : this(messageHandler, standalone)
         {
             endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            string endpointAddress = endpoint.ToString();
-            Endpoint = new Endpoint(endpointAddress.RemoveFromEnd(AssetAdministrationShellRoutes.AAS), InterfaceName.AssetAdministrationShellInterface);
+            string href = endpoint.ToString();
+            Endpoint = new Endpoint(href.RemoveFromEnd(AssetAdministrationShellRoutes.AAS), InterfaceName.AssetAdministrationShellInterface);
         }
         public AssetAdministrationShellHttpClient(IAssetAdministrationShellDescriptor aasDescriptor, bool standalone = true, bool preferHttps = true) : this(aasDescriptor, null, standalone, preferHttps)
         { }
@@ -66,16 +66,16 @@ namespace BaSyx.Clients.AdminShell.Http
             if (httpEndpoint == null)
                 httpEndpoint = aasDescriptor.Endpoints?.FirstOrDefault(p => p.ProtocolInformation?.EndpointProtocol == Uri.UriSchemeHttp);
 
-            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.EndpointAddress))
+            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.Href))
                 throw new Exception("There is no http endpoint for instantiating a client");
 
-            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.EndpointAddress.RemoveFromEnd(AssetAdministrationShellRoutes.AAS), 
+            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.Href.RemoveFromEnd(AssetAdministrationShellRoutes.AAS), 
                 InterfaceName.AssetAdministrationShellInterface);
         }
 
         public Uri GetPath(string requestPath = null, Identifier id = null, string idShortPath = null)
         {
-            string path = Endpoint.ProtocolInformation.EndpointAddress.Trim('/');
+            string path = Endpoint.ProtocolInformation.Href.Trim('/');
 
             if (_standalone)
                 path += AssetAdministrationShellRoutes.AAS;
@@ -106,7 +106,7 @@ namespace BaSyx.Clients.AdminShell.Http
 
         public async Task<IResult<IAssetAdministrationShellDescriptor>> RetrieveAssetAdministrationShellDescriptorAsync()
         {
-            string path = Endpoint.ProtocolInformation.EndpointAddress.Trim('/') + DescriptionRoutes.DESCRIPTOR;
+            string path = Endpoint.ProtocolInformation.Href.Trim('/') + DescriptionRoutes.DESCRIPTOR;
             Uri uri = new Uri(path);
             var request = CreateRequest(uri, HttpMethod.Get);
             var response = await SendRequestAsync(request, CancellationToken.None);

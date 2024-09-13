@@ -64,7 +64,7 @@ namespace BaSyx.API.Http.Controllers.PackageService
         [HttpPost("packages", Name = "PostAASXPackage")]
         [ProducesResponseType(201, Type = typeof(PackageDescription))]
         [DisableRequestSizeLimit]
-        public IActionResult PostAASXPackage([FromForm] List<string> aasIds, [FromForm] IFormFile file, [FromForm] string fileName)
+        public IActionResult PostAASXPackage([FromForm] List<string> aasIds, IFormFile file, [FromForm] string fileName)
         {
             PackageDescription packageDescription = new PackageDescription()
             {

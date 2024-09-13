@@ -17,8 +17,8 @@ namespace BaSyx.Models.Connectivity
 {
     public class ProtocolInformation
     {
-        [DataMember(EmitDefaultValue = false, IsRequired = false, Name = "endpointAddress")]
-        public string EndpointAddress { get; set; }
+        [DataMember(EmitDefaultValue = false, IsRequired = false, Name = "href")]
+        public string Href { get; set; }
 
         [DataMember(EmitDefaultValue = false, IsRequired = false, Name = "endpointProtocol")]
         public string EndpointProtocol { get; set; }
@@ -38,16 +38,16 @@ namespace BaSyx.Models.Connectivity
         [DataMember(EmitDefaultValue = false, IsRequired = false, Name = "securityAttributes")]
         public IEnumerable<SecurityAttribute> SecurityAttributes { get; set; }
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, JsonIgnore]
         public Uri Uri { get; }
 
         [JsonConstructor]
-        public ProtocolInformation(string endpointAddress)
+        public ProtocolInformation(string href)
         {
-            EndpointAddress = endpointAddress ?? throw new ArgumentNullException(nameof(endpointAddress));
+            Href = href ?? throw new ArgumentNullException(nameof(href));
             SecurityAttributes = new List<SecurityAttribute>();
 
-            if (Uri.TryCreate(endpointAddress, UriKind.Absolute, out Uri result))
+            if (Uri.TryCreate(href, UriKind.Absolute, out Uri result))
             {
                 Uri = result;
                 EndpointProtocol = Uri.Scheme;

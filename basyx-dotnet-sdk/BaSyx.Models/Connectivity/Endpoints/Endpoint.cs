@@ -29,7 +29,7 @@ namespace BaSyx.Models.Connectivity
             this(ProtocolInformationFactory.CreateProtocolInformation(endpointUri), @interface)
         { }
 
-        public Endpoint(string endpointAddress, InterfaceName @interface) : 
-            this (ProtocolInformationFactory.CreateProtocolInformation(endpointAddress), @interface) { }
+        public Endpoint(string href, InterfaceName @interface) : 
+            this (ProtocolInformationFactory.CreateProtocolInformation(href), @interface) { }
     }
 }

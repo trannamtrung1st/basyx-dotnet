@@ -48,8 +48,8 @@ namespace BaSyx.Clients.AdminShell.Http
         public SubmodelRepositoryHttpClient(Uri endpoint, HttpMessageHandler messageHandler) : this(messageHandler)
         {
             endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));
-            string endpointAddress = endpoint.ToString();
-            Endpoint = new Endpoint(endpointAddress.RemoveFromEnd(SubmodelRepositoryRoutes.SUBMODELS), InterfaceName.SubmodelRepositoryInterface);
+            string href = endpoint.ToString();
+            Endpoint = new Endpoint(href.RemoveFromEnd(SubmodelRepositoryRoutes.SUBMODELS), InterfaceName.SubmodelRepositoryInterface);
         }
         public SubmodelRepositoryHttpClient(ISubmodelRepositoryDescriptor submodelRepoDescriptor, bool preferHttps = true) : this(submodelRepoDescriptor, null, preferHttps)
         { }
@@ -63,16 +63,16 @@ namespace BaSyx.Clients.AdminShell.Http
             if (httpEndpoint == null)
                 httpEndpoint = submodelRepoDescriptor.Endpoints?.FirstOrDefault(p => p.ProtocolInformation?.EndpointProtocol == Uri.UriSchemeHttp);
 
-            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.EndpointAddress))
+            if (httpEndpoint == null || string.IsNullOrEmpty(httpEndpoint.ProtocolInformation?.Href))
                 throw new Exception("There is no http endpoint for instantiating a client");
 
-            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.EndpointAddress.RemoveFromEnd(SubmodelRepositoryRoutes.SUBMODELS),
+            Endpoint = new Endpoint(httpEndpoint.ProtocolInformation.Href.RemoveFromEnd(SubmodelRepositoryRoutes.SUBMODELS),
                 InterfaceName.SubmodelRepositoryInterface);           
         }
 
         public Uri GetPath(string requestPath, Identifier id = null, string idShortPath = null)
         {
-            string path = Endpoint.ProtocolInformation.EndpointAddress.Trim('/');
+            string path = Endpoint.ProtocolInformation.Href.Trim('/');
 
             if (string.IsNullOrEmpty(requestPath))
                 return new Uri(path);

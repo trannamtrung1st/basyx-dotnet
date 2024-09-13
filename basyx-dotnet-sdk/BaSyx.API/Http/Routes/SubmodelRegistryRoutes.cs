@@ -19,10 +19,10 @@ namespace BaSyx.API.Http
         /// <summary>
         /// Root route
         /// </summary>
-        public const string SUBMODEL_DESCRIPTORS = "/registry/submodel-descriptors";
+        public const string SUBMODEL_DESCRIPTORS = "/submodel-descriptors";
         /// <summary>
         /// Specific Submodel Descriptor
         /// </summary>
-        public const string SUBMODEL_DESCRIPTOR_ID = "/registry/submodel-descriptors/{submodelIdentifier}";
+        public const string SUBMODEL_DESCRIPTOR_ID = "/submodel-descriptors/{submodelIdentifier}";
     }
 }

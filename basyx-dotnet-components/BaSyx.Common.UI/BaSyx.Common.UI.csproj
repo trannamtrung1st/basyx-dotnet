@@ -37,14 +37,9 @@
     <ProjectReference Include="..\BaSyx.Components.Common.Abstractions\BaSyx.Components.Common.Abstractions.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="Exists('..\..\basyx-dotnet-sdk\')">
+  <ItemGroup>
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.API\BaSyx.API.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="!Exists('..\..\basyx-dotnet-sdk\')">
-    <PackageReference Include="BaSyx.API" Version="*" />
-  </ItemGroup>
-
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>

@@ -36,9 +36,9 @@ namespace BaSyx.Models.Connectivity
                     return null;
             }
         }
-        public static ProtocolInformation CreateProtocolInformation(string endpointAddress)
+        public static ProtocolInformation CreateProtocolInformation(string href)
         {
-            if (Uri.TryCreate(endpointAddress, UriKind.Absolute, out Uri result))
+            if (Uri.TryCreate(href, UriKind.Absolute, out Uri result))
             {
                 return CreateProtocolInformation(result);
             }

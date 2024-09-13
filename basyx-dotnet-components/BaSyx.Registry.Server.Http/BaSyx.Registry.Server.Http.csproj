@@ -12,26 +12,19 @@
     <Description>The official BaSyx Registry Http Server</Description>
     <Company>Bosch Rexroth AG</Company>
     <PackageTags>BaSys BaSyx Registry Server</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>    
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>basyxlogo.png</PackageIcon>
     <IsPackable>true</IsPackable>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <Version>2.0.14</Version><PublishReadyToRun>true</PublishReadyToRun>
+    <Version>2.0.14</Version>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BaSyx.API.Http.Controllers\BaSyx.API.Http.Controllers.csproj" />
     <ProjectReference Include="..\BaSyx.Components.Common\BaSyx.Components.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="Exists('..\..\basyx-dotnet-sdk\')">
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.API\BaSyx.API.csproj" />
   </ItemGroup>
-
-  <ItemGroup Condition="!Exists('..\..\basyx-dotnet-sdk\')">
-    <PackageReference Include="BaSyx.API" Version="*" />
-  </ItemGroup>
-
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>

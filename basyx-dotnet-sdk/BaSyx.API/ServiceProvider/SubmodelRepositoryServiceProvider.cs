@@ -48,17 +48,20 @@ namespace BaSyx.API.ServiceProvider
 
         public SubmodelRepositoryServiceProvider()
         {
-            SubmodelServiceProviders = new Dictionary<string, ISubmodelServiceProvider>();
+            SubmodelServiceProviders = [];
         }
 
         public void BindTo(IEnumerable<ISubmodel> submodels)
         {
+            ServiceDescriptor ??= new SubmodelRepositoryDescriptor(submodels, null);
             foreach (var submodel in submodels)
             {
-                RegisterSubmodelServiceProvider(submodel.Id, submodel.CreateServiceProvider());
+                var submodelProvider = submodel.CreateServiceProvider();
+                RegisterSubmodelServiceProvider(submodel.Id, submodelProvider);
+                ServiceDescriptor.AddSubmodelDescriptor(submodelProvider.ServiceDescriptor);
             }
-            ServiceDescriptor = ServiceDescriptor ?? new SubmodelRepositoryDescriptor(submodels, null);
         }
+
         public IEnumerable<ISubmodel> GetBinding()
         {
             List<ISubmodel> submodels = new List<ISubmodel>();
@@ -137,7 +140,7 @@ namespace BaSyx.API.ServiceProvider
         public IResult<ISubmodel> RetrieveSubmodel(Identifier id)
         {
             var retrievedSubmodelServiceProvider = GetSubmodelServiceProvider(id);
-            if(retrievedSubmodelServiceProvider.TryGetEntity(out ISubmodelServiceProvider serviceProvider))
+            if (retrievedSubmodelServiceProvider.TryGetEntity(out ISubmodelServiceProvider serviceProvider))
             {
                 ISubmodel binding = serviceProvider.GetBinding();
                 return new Result<ISubmodel>(true, binding);
@@ -147,7 +150,7 @@ namespace BaSyx.API.ServiceProvider
 
         public IResult<PagedResult<IElementContainer<ISubmodel>>> RetrieveSubmodels()
         {
-            return new Result<PagedResult<IElementContainer<ISubmodel>>>(true, 
+            return new Result<PagedResult<IElementContainer<ISubmodel>>>(true,
                 new PagedResult<IElementContainer<ISubmodel>>(new ElementContainer<ISubmodel>(null, Submodels)));
         }
 
@@ -161,7 +164,7 @@ namespace BaSyx.API.ServiceProvider
             var retrievedSubmodelServiceProvider = GetSubmodelServiceProvider(id);
             if (retrievedSubmodelServiceProvider.TryGetEntity(out ISubmodelServiceProvider serviceProvider))
                 return serviceProvider.UpdateSubmodel(submodel);
-            
+
             return new Result<ISubmodel>(false, new NotFoundMessage("Submodel Service Provider"));
         }
     }
