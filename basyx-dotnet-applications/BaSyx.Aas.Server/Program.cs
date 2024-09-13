@@ -18,29 +18,20 @@ using Microsoft.AspNetCore.Hosting;
 using System.Security.Cryptography.X509Certificates;
 using BaSyx.Deployment.AppDataService;
 using BaSyx.Registry.ReferenceImpl.InMemory;
-using System.IO;
 using BaSyx.Servers.Http;
 using System.Collections.Generic;
-using BaSyx.Models.Connectivity;
 using BaSyx.Registry.Client.Http;
-using CommandLine;
-using System;
 using System.Linq;
-using System.Threading.Tasks;
-using BaSyx.Models.Export;
-using System.IO.Packaging;
 using BaSyx.Models.AdminShell;
 using BaSyx.API.ServiceProvider;
-using System.Collections.Concurrent;
 
 namespace BaSyx.Aas.Server;
 
 class Program
 {
-    private static readonly ILogger logger = LogManager.GetCurrentClassLogger();
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     private static AppDataService AppDataService { get; set; }
-    private static FileSystemWatcher watcher;
     private static AasHttpServer httpServer;
     private static AssetAdministrationShellRepositoryServiceProvider aasRepository;
     private static SubmodelRepositoryServiceProvider submodelRepository;
@@ -48,50 +39,9 @@ class Program
     private static RegistryClientSettings registryClientSettings;
     private static RegistryHttpClient registryHttpClient;
 
-    public class Options
-    {
-        [Option('i', "input", Required = false, HelpText = "Path to AASX-File or Folder")]
-        public string InputPath { get; set; }
-    }
-
     static void Main(string[] args)
     {
-        logger.Info("Starting AAS Server...");
-
-        string[] inputFiles = null;
-
-        Parser.Default.ParseArguments<Options>(args)
-            .WithParsed(o =>
-            {
-                if (!string.IsNullOrEmpty(o.InputPath))
-                {
-                    if (Directory.Exists(o.InputPath))
-                    {
-                        inputFiles = Directory.GetFiles(o.InputPath, "*.aasx");
-
-                        watcher = new FileSystemWatcher(o.InputPath, "*.aasx");
-                        watcher.EnableRaisingEvents = true;
-                        watcher.Changed += Watcher_Changed;
-                    }
-                    else if (File.Exists(o.InputPath))
-                    {
-                        inputFiles = new string[] { o.InputPath };
-                    }
-                    else
-                        throw new FileNotFoundException(o.InputPath);
-                }
-                else if (args.Length > 0)
-                {
-                    if (File.Exists(args[0]))
-                        inputFiles = new string[] { args[0] };
-                    else if (Directory.Exists(args[0]))
-                        inputFiles = Directory.GetFiles(args[0]);
-                }
-
-            });
-
-        if (args.Contains("--help") || args.Contains("--version"))
-            return;
+        _logger.Info("Starting AAS Server...");
 
         AppDataService = AppDataService.Create("aas", "appsettings.json", args);
 
@@ -138,11 +88,6 @@ class Program
         httpServer.AddBaSyxUI(PageNames.AssetAdministrationShellRepositoryServer);
         httpServer.AddSwagger(Interface.All);
 
-        for (int i = 0; i < inputFiles?.Length; i++)
-        {
-            LoadAASX(inputFiles[i]);
-        }
-
         var shellDesrciptors = aasRepository.ServiceDescriptor.AssetAdministrationShellDescriptors;
         var registryImpl = new InMemoryRegistry(shellDesrciptors);
         httpServer.ApplicationStarted = () =>
@@ -168,7 +113,7 @@ class Program
                     var result = registryHttpClient
                         .DeleteAssetAdministrationShellRegistration(shellProvider.ServiceDescriptor.Id.Id);
 
-                    logger.Info($"Success: {result.Success} | Messages: {result.Messages.ToString()}");
+                    _logger.Info($"Success: {result.Success} | Messages: {result.Messages.ToString()}");
                 }
             }
         };
@@ -228,73 +173,5 @@ class Program
             });
             shells.Add(aas);
         }
-    }
-
-    private static async void Watcher_Changed(object sender, FileSystemEventArgs e)
-    {
-        await Task.Delay(1000);
-        LoadAASX(e.FullPath);
-    }
-
-    private static void LoadAASX(string aasxFilePath)
-    {
-        using (AASX_V2_0 aasx = new AASX_V2_0(aasxFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-        {
-            AssetAdministrationShellEnvironment_V2_0 environment = aasx.GetEnvironment_V2_0();
-            if (environment == null)
-            {
-                logger.Error("Asset Administration Shell Environment cannot be obtained from AASX-Package " + aasxFilePath);
-                return;
-            }
-
-            logger.Info("AASX-Package successfully loaded");
-
-            if (environment.AssetAdministrationShells.Count != 0)
-            {
-                PackagePart thumbnailPart = aasx.GetThumbnailAsPackagePart();
-                AddToAssetAdministrationShellRepository(environment.AssetAdministrationShells, aasx.SupplementaryFiles, thumbnailPart);
-            }
-            else
-            {
-                logger.Error("No Asset Administration Shells found AASX-Package " + aasxFilePath);
-                return;
-            }
-        }
-    }
-
-    private static void AddToAssetAdministrationShellRepository(List<IAssetAdministrationShell> assetAdministrationShells, List<PackagePart> supplementaryFiles, PackagePart thumbnailPart)
-    {
-        foreach (var inputShell in assetAdministrationShells)
-        {
-            var shell = aasRepository.CreateAssetAdministrationShell(inputShell).Entity;
-            var aasProvider = aasRepository.GetAssetAdministrationShellServiceProvider(shell.Id).Entity;
-
-            if (serverSettings.Miscellaneous.TryGetValue("AutoRegister", out string value) && value == "true")
-            {
-                var result = registryHttpClient.CreateAssetAdministrationShellRegistration(aasProvider.ServiceDescriptor);
-
-                logger.Info($"Success: {result.Success} | Messages: {result.Messages.ToString()}");
-            }
-        }
-
-        string aasIdName = assetAdministrationShells.First().Id;
-        foreach (char invalidChar in Path.GetInvalidFileNameChars())
-            aasIdName = aasIdName.Replace(invalidChar, '_');
-
-        foreach (var file in supplementaryFiles)
-        {
-            using (Stream stream = file.GetStream())
-            {
-                Uri fileUri = new Uri(aasIdName + "/" + file.Uri.ToString().TrimStart('/'), UriKind.Relative);
-                logger.Info("Providing content on server: " + fileUri);
-                httpServer.ProvideContent(fileUri, stream);
-            }
-        }
-        if (thumbnailPart != null)
-            using (Stream thumbnailStream = thumbnailPart.GetStream())
-            {
-                Uri thumbnailUri = new Uri(aasIdName + "/" + thumbnailPart.Uri.ToString().TrimStart('/'), UriKind.Relative);
-                httpServer.ProvideContent(thumbnailUri, thumbnailStream);
-            }
     }
 }
