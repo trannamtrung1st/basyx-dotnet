@@ -209,7 +209,7 @@ class Program
                 }
             };
 
-            aas.Submodels.Create(new Submodel("TestSubmodel", new BaSyxSubmodelIdentifier("TestSubmodel", "1.0.0"))
+            aas.Submodels.Create(new Submodel("TestSubmodel", new BaSyxSubmodelIdentifier($"TestSubmodel {i}", "1.0.0"))
             {
                 SubmodelElements =
                     {
