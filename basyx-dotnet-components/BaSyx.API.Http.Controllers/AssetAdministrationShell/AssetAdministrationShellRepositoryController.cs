@@ -240,7 +240,7 @@ namespace BaSyx.API.Http.Controllers
         [Consumes("application/json")]
         [ProducesResponseType(typeof(Reference), 201)]
         [ProducesResponseType(typeof(Result), 400)]
-        public IActionResult ShellRepo_PostSubmodelReference(string aasIdentifier, [FromBody] IReference submodelReference)
+        public IActionResult ShellRepo_PostSubmodelReference(string aasIdentifier, [FromBody] Reference submodelReference)
         {
             if (serviceProvider.IsNullOrNotFound(aasIdentifier, out IActionResult result, out IAssetAdministrationShellServiceProvider provider))
                 return result;

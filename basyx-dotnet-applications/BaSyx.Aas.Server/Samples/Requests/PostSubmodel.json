@@ -1,0 +1,38 @@
+{
+    "category": "measurement",
+    "idShort": "measurement",
+    "displayName": [
+        {
+            "language": "en-US",
+            "text": "Measurement"
+        }
+    ],
+    "description": [
+        {
+            "language": "en-US",
+            "text": "Measurement data"
+        }
+    ],
+    "modelType": "Submodel",
+    "administration": {
+        "version": "1.0.0",
+        "revision": "1"
+    },
+    "id": "ahi/temp_sensor_1/measurement",
+    "kind": "Instance",
+    "qualifiers": [],
+    "submodelElements": [
+        {
+            "displayName": [
+                {
+                    "language": "en-US",
+                    "text": "Measurement data"
+                }
+            ],
+            "valueType": "string",
+            "value": "Temperature",
+            "modelType": "Property",
+            "idShort": "measurement_data"
+        }
+    ]
+}

@@ -18,6 +18,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using BaSyx.Utils.ResultHandling.ResultTypes;
+using BaSyx.Utils.Settings;
+using BaSyx.API.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace BaSyx.API.Http.Controllers
 {
@@ -29,16 +32,24 @@ namespace BaSyx.API.Http.Controllers
     {
         private readonly ISubmodelRepositoryServiceProvider serviceProvider;
         private readonly IWebHostEnvironment hostingEnvironment;
+        private readonly ISubmodelRegistryInterface _smRegistry;
+        private readonly ServerSettings _serverSettings;
 
         /// <summary>
         /// The constructor for the Submodel Repository Controller
         /// </summary>
         /// <param name="submodelRepositoryServiceProvider"></param>
         /// <param name="environment">The Hosting Environment provided by the dependency injection</param>
-        public SubmodelRepositoryController(ISubmodelRepositoryServiceProvider submodelRepositoryServiceProvider, IWebHostEnvironment environment)
+        /// <param name="configuration"></param>
+        /// <param name="smRegistry"></param>
+        public SubmodelRepositoryController(
+            ISubmodelRepositoryServiceProvider submodelRepositoryServiceProvider, IWebHostEnvironment environment,
+            IConfiguration configuration, ISubmodelRegistryInterface smRegistry)
         {
             serviceProvider = submodelRepositoryServiceProvider;
             hostingEnvironment = environment;
+            _serverSettings = configuration.GetSection("ServerSettings").Get<ServerSettings>();
+            _smRegistry = smRegistry;
         }
 
         /// <summary>
@@ -75,13 +86,22 @@ namespace BaSyx.API.Http.Controllers
             string submodelId = ResultHandling.Base64UrlEncode(submodel.Id);
 
             var result = serviceProvider.CreateSubmodel(submodel);
+            var entity = result.Entity;
+
+            if (_serverSettings.Miscellaneous?.TryGetValue("AutoRegister", out var autoRegister) == true
+                && bool.Parse(autoRegister) == true)
+            {
+                var smProvider = serviceProvider.SubmodelProviderRegistry.GetSubmodelServiceProvider(entity.Id).Entity;
+                _smRegistry.CreateSubmodelRegistration(smProvider.ServiceDescriptor);
+            }
+
             return result.CreateActionResult(CrudOperation.Create, SubmodelRepositoryRoutes.SUBMODELS + "/ " + submodelId);
         }
 
         /// <summary>
         /// Returns a specific Submodel
         /// </summary>
-        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        /// <param name="submodelIdentifier">The Submodelï¿½s unique id (BASE64-URL-encoded)</param>
         /// <param name="level"></param>
         /// <param name="extent"></param>
         /// <returns></returns>
@@ -104,7 +124,7 @@ namespace BaSyx.API.Http.Controllers
         /// <summary>
         /// Updates an existing Submodel
         /// </summary>
-        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        /// <param name="submodelIdentifier">The Submodelï¿½s unique id (BASE64-URL-encoded)</param>
         /// <param name="submodel">Submodel object</param>
         /// <param name="level"></param>
         /// <param name="extent"></param>
@@ -132,7 +152,7 @@ namespace BaSyx.API.Http.Controllers
         /// <summary>
         /// Deletes a Submodel
         /// </summary>
-        /// <param name="submodelIdentifier">The Submodel’s unique id (BASE64-URL-encoded)</param>
+        /// <param name="submodelIdentifier">The Submodelï¿½s unique id (BASE64-URL-encoded)</param>
         /// <returns></returns>
         /// <response code="200">Submodel deleted successfully</response>
         [HttpDelete(SubmodelRepositoryRoutes.SUBMODEL_BYID, Name = "DeleteSubmodelById")]
@@ -270,8 +290,8 @@ namespace BaSyx.API.Http.Controllers
             return service.PutSubmodelElementByPath(idShortPath, requestBody, level, extent);
         }
 
-		/// <inheritdoc cref="SubmodelController.PatchSubmodelElementValueByPathValueOnly(string, JsonDocument, RequestLevel)"/>
-		[HttpPatch(SubmodelRepositoryRoutes.SUBMODEL_BYID + SubmodelRoutes.SUBMODEL_ELEMENTS_IDSHORTPATH + OutputModifier.VALUE, Name = "SubmodelRepo_PatchSubmodelElementValueByPathValueOnly")]
+        /// <inheritdoc cref="SubmodelController.PatchSubmodelElementValueByPathValueOnly(string, JsonDocument, RequestLevel)"/>
+        [HttpPatch(SubmodelRepositoryRoutes.SUBMODEL_BYID + SubmodelRoutes.SUBMODEL_ELEMENTS_IDSHORTPATH + OutputModifier.VALUE, Name = "SubmodelRepo_PatchSubmodelElementValueByPathValueOnly")]
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(SubmodelElement), 201)]

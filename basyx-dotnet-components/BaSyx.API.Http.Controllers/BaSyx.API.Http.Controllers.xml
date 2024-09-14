@@ -227,7 +227,7 @@
         <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.ShellRepo_GetAllSubmodelReferences(System.String)">
             <inheritdoc cref="M:BaSyx.API.Http.Controllers.AssetAdministrationShellController.GetAllSubmodelReferences"/>
         </member>
-        <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.ShellRepo_PostSubmodelReference(System.String,BaSyx.Models.AdminShell.IReference)">
+        <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.ShellRepo_PostSubmodelReference(System.String,BaSyx.Models.AdminShell.Reference)">
             <inheritdoc cref="M:BaSyx.API.Http.Controllers.AssetAdministrationShellController.PostSubmodelReference(BaSyx.Models.AdminShell.IReference)"/>          
         </member>
         <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.ShellRepo_DeleteSubmodelReferenceById(System.String,System.String)">
@@ -648,12 +648,14 @@
             The Submodel Repository Controller
             </summary>
         </member>
-        <member name="M:BaSyx.API.Http.Controllers.SubmodelRepositoryController.#ctor(BaSyx.API.ServiceProvider.ISubmodelRepositoryServiceProvider,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+        <member name="M:BaSyx.API.Http.Controllers.SubmodelRepositoryController.#ctor(BaSyx.API.ServiceProvider.ISubmodelRepositoryServiceProvider,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Configuration.IConfiguration,BaSyx.API.Interfaces.ISubmodelRegistryInterface)">
             <summary>
             The constructor for the Submodel Repository Controller
             </summary>
             <param name="submodelRepositoryServiceProvider"></param>
             <param name="environment">The Hosting Environment provided by the dependency injection</param>
+            <param name="configuration"></param>
+            <param name="smRegistry"></param>
         </member>
         <member name="M:BaSyx.API.Http.Controllers.SubmodelRepositoryController.GetAllSubmodels(System.String,System.String)">
             <summary>

@@ -116,14 +116,11 @@ namespace BaSyx.API.ServiceProvider
             return new Result<IEnumerable<ISubmodelServiceProvider>>(true, SubmodelServiceProviders.Values?.ToList());
         }
 
-        public IResult<ISubmodelDescriptor> RegisterSubmodelServiceProvider(Identifier id, ISubmodelServiceProvider submodelServiceProvider)
+        public IResult<ISubmodelDescriptor> RegisterSubmodelServiceProvider(Identifier id, ISubmodelServiceProvider smProvider)
         {
-            if (SubmodelServiceProviders.ContainsKey(id))
-                SubmodelServiceProviders[id] = submodelServiceProvider;
-            else
-                SubmodelServiceProviders.Add(id, submodelServiceProvider);
-
-            return new Result<ISubmodelDescriptor>(true, submodelServiceProvider.ServiceDescriptor);
+            SubmodelServiceProviders[id] = smProvider;
+            smProvider.UseRepoEndpointRegistration(ServiceDescriptor.Endpoints);
+            return new Result<ISubmodelDescriptor>(true, smProvider.ServiceDescriptor);
         }
 
         public IResult UnregisterSubmodelServiceProvider(Identifier id)
