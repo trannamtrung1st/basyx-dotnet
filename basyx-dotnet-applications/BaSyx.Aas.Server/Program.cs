@@ -24,6 +24,9 @@ using BaSyx.Registry.Client.Http;
 using System.Linq;
 using BaSyx.Models.AdminShell;
 using BaSyx.API.ServiceProvider;
+using Microsoft.Extensions.DependencyInjection;
+using BaSyx.Aas.Server.Services.Abstracts;
+using BaSyx.Aas.Server.Services;
 
 namespace BaSyx.Aas.Server;
 
@@ -52,6 +55,11 @@ class Program
         registryHttpClient = new RegistryHttpClient(registryClientSettings);
         httpServer = new AasHttpServer(serverSettings, args);
         httpServer.WebHostBuilder.UseNLog();
+        httpServer.ConfigureServices(services =>
+        {
+            services.AddMemoryCache();
+            services.AddSingleton<ICachedFileService, CachedFileService>();
+        });
 
         //Configure the pathbase as default prefix for all routes
         if (!string.IsNullOrEmpty(serverSettings.ServerConfig.PathBase))
@@ -86,7 +94,7 @@ class Program
         submodelRepository.UseAutoEndpointRegistration(serverSettings.ServerConfig);
 
         httpServer.AddBaSyxUI(PageNames.AssetAdministrationShellRepositoryServer);
-        httpServer.AddSwagger(Interface.All);
+        httpServer.AddSwagger(Interface.All, scanAssemblies: [typeof(Program).Assembly]);
 
         var shellDesrciptors = aasRepository.ServiceDescriptor.AssetAdministrationShellDescriptors;
         var registryImpl = new InMemoryRegistry(shellDesrciptors);
@@ -104,18 +112,6 @@ class Program
             {
                 registryImpl.StopDiscovery();
             }
-
-            if (serverSettings.Miscellaneous.TryGetValue("AutoRegister", out string value) && value == "true")
-            {
-                var providers = aasRepository.GetAssetAdministrationShellServiceProviders().Entity;
-                foreach (var shellProvider in providers)
-                {
-                    var result = registryHttpClient
-                        .DeleteAssetAdministrationShellRegistration(shellProvider.ServiceDescriptor.Id.Id);
-
-                    _logger.Info($"Success: {result.Success} | Messages: {result.Messages.ToString()}");
-                }
-            }
         };
 
         httpServer.ConfigureAllServices(
@@ -127,7 +123,11 @@ class Program
             smRegistryProvider: registryImpl
         );
 
-        httpServer.Run();
+        var host = httpServer.Build();
+
+        CachedFileService.Global = host.Services.GetRequiredService<ICachedFileService>();
+
+        host.Run();
     }
 
     private static void InitializeData(out List<AssetAdministrationShell> shells)

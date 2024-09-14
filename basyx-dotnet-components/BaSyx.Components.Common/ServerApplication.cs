@@ -39,7 +39,7 @@ namespace BaSyx.Components.Common
     public abstract class ServerApplication : IServerApplication
     {
         private static readonly ILogger logger = LoggingExtentions.CreateLogger<ServerApplication>();
-        
+
         private bool _secure = false;
         private string _defaultRoute = null;
         private string _pathBase = null;
@@ -80,7 +80,7 @@ namespace BaSyx.Components.Common
         protected ServerApplication(ServerSettings settings, string[] webHostBuilderArgs)
         {
             ExecutionPath = settings?.ExecutionPath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            
+
             if (settings == null && !EmbeddedResource.CheckOrWriteRessourceToFile(typeof(ServerApplication).Assembly, Path.Combine(ExecutionPath, ServerSettings.FileName)))
                 logger.LogError($"{ServerSettings.FileName} cannot be loaded or written to filesystem");
 
@@ -94,13 +94,16 @@ namespace BaSyx.Components.Common
                 .CreateWebHostBuilder(webHostBuilderArgs, Settings)
                 .ConfigureAppConfiguration((context, builder) =>
                 {
-                    Configuration = builder.Build();
+                    Configuration = builder
+                        .AddJsonFile(provider: new PhysicalFileProvider(Directory.GetCurrentDirectory()),
+                            path: "appsettings.json", optional: true, reloadOnChange: false)
+                        .Build();
                 });
             AppBuilderPipeline = new List<Action<IApplicationBuilder>>();
             ServiceBuilderPipeline = new List<Action<IServiceCollection>>();
             EndpointBuilderPipeline = new List<Action<IEndpointRouteBuilder>>();
 
-            WebHostBuilder.ConfigureServices( (context, services) =>
+            WebHostBuilder.ConfigureServices((context, services) =>
             {
                 ConfigureServices(context, services);
             });
@@ -143,7 +146,7 @@ namespace BaSyx.Components.Common
             catch (Exception e)
             {
                 logger.LogError(e, $"WebRoot path {WebRoot} cannot be created ");
-            }            
+            }
         }
 
         public virtual void Run()
@@ -152,6 +155,14 @@ namespace BaSyx.Components.Common
 
             WebHostBuilder.Build().Run();
         }
+
+        public virtual IWebHost Build()
+        {
+            logger.LogInformation("Building Server...");
+
+            return WebHostBuilder.Build();
+        }
+
         public virtual async Task RunAsync(CancellationToken cancellationToken = default)
         {
             logger.LogInformation("Starting Server asynchronously...");
@@ -315,7 +326,7 @@ namespace BaSyx.Components.Common
                 _secure = true;
                 services.AddHttpsRedirection(opts =>
                 {
-                    opts.HttpsPort = secureUri.Port;   
+                    opts.HttpsPort = secureUri.Port;
                 });
             }
 
@@ -410,7 +421,7 @@ namespace BaSyx.Components.Common
             var env = app.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
             var applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
             var loggingFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-            
+
             //Set ASP.NET Core LoggingFactory to global LoggingFactory for all other loggings within the BaSyx SDK
             LoggingExtentions.LoggerFactory = loggingFactory;
 
@@ -435,9 +446,9 @@ namespace BaSyx.Components.Common
 
             app.UseStatusCodePages(StatusCodeHandler);
 
-            if(_secure && !env.IsDevelopment())
+            if (_secure && !env.IsDevelopment())
                 app.UseHttpsRedirection();
-            
+
             app.UseStaticFiles();
 
             string path = env.ContentRootPath;
@@ -483,7 +494,7 @@ namespace BaSyx.Components.Common
 
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
@@ -506,7 +517,7 @@ namespace BaSyx.Components.Common
             if (ApplicationStopping != null)
                 applicationLifetime.ApplicationStopping.Register(ApplicationStopping);
             if (ApplicationStopped != null)
-                applicationLifetime.ApplicationStopped.Register(ApplicationStopped);            
-        }        
+                applicationLifetime.ApplicationStopped.Register(ApplicationStopped);
+        }
     }
 }

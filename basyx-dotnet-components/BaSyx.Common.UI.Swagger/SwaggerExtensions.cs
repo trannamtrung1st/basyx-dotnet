@@ -18,6 +18,8 @@ using BaSyx.Utils.Assembly;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
 using BaSyx.Components.Common.Abstractions;
+using BaSyx.Common.UI.Swagger.Filters;
+using System.Collections.Generic;
 
 namespace BaSyx.Common.UI.Swagger
 {
@@ -111,12 +113,14 @@ namespace BaSyx.Common.UI.Swagger
         AssetAdministrationShellRepository,
         AssetAdministrationShellRegistry,
         Submodel,
-        SubmodelRepository,        
+        SubmodelRepository,
         SubmodelRegistry,
     }
     public static class SwaggerExtensions
     {
-        public static void AddSwagger(this IServerApplication serverApp, Interface interfaceType, string xmlCommentFilePath = null)
+        public static void AddSwagger(this IServerApplication serverApp,
+            Interface interfaceType, string xmlCommentFilePath = null,
+            IEnumerable<Assembly> scanAssemblies = null)
         {
             OpenApiInfo info = OpenApiInfos.GetApiInfo(interfaceType);
             serverApp.ConfigureServices(services =>
@@ -125,7 +129,7 @@ namespace BaSyx.Common.UI.Swagger
                 {
                     c.SwaggerDoc("v1", info);
 
-					// this operations resolves path conflicts (double route path). Commented out for better error detection (swagger fails).
+                    // this operations resolves path conflicts (double route path). Commented out for better error detection (swagger fails).
                     // c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
 
                     string xmlPath = null;
@@ -139,12 +143,15 @@ namespace BaSyx.Common.UI.Swagger
                     }
                     else
                         xmlPath = xmlCommentFilePath;
-                  
+
                     if (EmbeddedResource.CheckOrWriteRessourceToFile(serverApp.ControllerAssembly, xmlPath))
                         c.IncludeXmlComments(xmlPath, true);
 
-                    if(interfaceType != Interface.All)
+                    if (interfaceType != Interface.All)
                         c.DocumentFilter<ControllerSelector>(interfaceType);
+
+                    // Scan and apply all classes inheriting from OperationBasedFilter
+                    ApplyOperationBasedFilters(c, scanAssemblies);
                 });
             });
 
@@ -154,12 +161,27 @@ namespace BaSyx.Common.UI.Swagger
                 app.UseSwagger();
                 app.UseDeveloperExceptionPage();
 
-				// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-				app.UseSwaggerUI(c =>
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+                app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", info.Title);
                 });
             });
+        }
+
+        private static void ApplyOperationBasedFilters(SwaggerGenOptions options, IEnumerable<Assembly> scanAssemblies)
+        {
+            var operationBasedFilterTypes = scanAssemblies.SelectMany(a => a.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(OperationBasedFilter).IsAssignableFrom(t)));
+
+            foreach (var filterType in operationBasedFilterTypes)
+            {
+                options.OperationFilterDescriptors.Add(new FilterDescriptor
+                {
+                    Type = filterType,
+                    FilterInstance = Activator.CreateInstance(filterType)
+                });
+            }
         }
 
         internal protected class ControllerSelector : IDocumentFilter
@@ -179,15 +201,15 @@ namespace BaSyx.Common.UI.Swagger
                 foreach (var apiDescription in context.ApiDescriptions)
                 {
                     string name = apiDescription.ActionDescriptor.DisplayName;
-                    if(!name.Contains(_controllerName))
+                    if (!name.Contains(_controllerName))
                     {
                         string route = "/" + apiDescription.ActionDescriptor.AttributeRouteInfo.Template;
-                        swaggerDoc.Paths.Remove(route);                        
+                        swaggerDoc.Paths.Remove(route);
                     }
                 }
                 foreach (var tag in swaggerDoc.Tags.ToList())
                 {
-                    if(tag.Name != _controllerName)
+                    if (tag.Name != _controllerName)
                     {
                         swaggerDoc.Tags.Remove(tag);
                     }

@@ -158,12 +158,14 @@
             The Asset Administration Shell Repository Controller
             </summary>
         </member>
-        <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.#ctor(BaSyx.API.ServiceProvider.IAssetAdministrationShellRepositoryServiceProvider,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+        <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.#ctor(BaSyx.API.ServiceProvider.IAssetAdministrationShellRepositoryServiceProvider,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Configuration.IConfiguration,BaSyx.API.Interfaces.IAssetAdministrationShellRegistryInterface)">
             <summary>
             The constructor for the Asset Administration Shell Repository Controller
             </summary>
             <param name="assetAdministrationShellRepositoryServiceProvider"></param>
             <param name="environment">The Hosting Environment provided by the dependency injection</param>
+            <param name="configuration"></param>
+            <param name="shellRegistry"></param>
         </member>
         <member name="M:BaSyx.API.Http.Controllers.AssetAdministrationShellRepositoryController.GetAllAssetAdministrationShells">
             <summary>

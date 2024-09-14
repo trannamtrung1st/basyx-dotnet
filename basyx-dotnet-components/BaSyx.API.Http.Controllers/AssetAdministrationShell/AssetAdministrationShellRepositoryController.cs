@@ -20,6 +20,9 @@ using BaSyx.Utils.ResultHandling.ResultTypes;
 using System.Text.Json;
 using BaSyx.Models.Connectivity;
 using System.Linq;
+using BaSyx.Utils.Settings;
+using Microsoft.Extensions.Configuration;
+using BaSyx.API.Interfaces;
 
 namespace BaSyx.API.Http.Controllers
 {
@@ -30,17 +33,25 @@ namespace BaSyx.API.Http.Controllers
     public class AssetAdministrationShellRepositoryController : Controller
     {
         private readonly IAssetAdministrationShellRepositoryServiceProvider serviceProvider;
+        private readonly IAssetAdministrationShellRegistryInterface _shellRegistry;
         private readonly IWebHostEnvironment hostingEnvironment;
+        private readonly ServerSettings _serverSettings;
 
         /// <summary>
         /// The constructor for the Asset Administration Shell Repository Controller
         /// </summary>
         /// <param name="assetAdministrationShellRepositoryServiceProvider"></param>
         /// <param name="environment">The Hosting Environment provided by the dependency injection</param>
-        public AssetAdministrationShellRepositoryController(IAssetAdministrationShellRepositoryServiceProvider assetAdministrationShellRepositoryServiceProvider, IWebHostEnvironment environment)
+        /// <param name="configuration"></param>
+        /// <param name="shellRegistry"></param>
+        public AssetAdministrationShellRepositoryController(
+            IAssetAdministrationShellRepositoryServiceProvider assetAdministrationShellRepositoryServiceProvider, IWebHostEnvironment environment,
+            IConfiguration configuration, IAssetAdministrationShellRegistryInterface shellRegistry)
         {
             serviceProvider = assetAdministrationShellRepositoryServiceProvider;
             hostingEnvironment = environment;
+            _serverSettings = configuration.GetSection("ServerSettings").Get<ServerSettings>();
+            _shellRegistry = shellRegistry;
         }
 
         /// <summary>
@@ -76,6 +87,15 @@ namespace BaSyx.API.Http.Controllers
             string aasIdentifier = ResultHandling.Base64UrlEncode(aas.Id);
 
             var result = serviceProvider.CreateAssetAdministrationShell(aas);
+            var entity = result.Entity;
+
+            if (_serverSettings.Miscellaneous?.TryGetValue("AutoRegister", out var autoRegister) == true
+                && bool.Parse(autoRegister) == true)
+            {
+                var aasProvider = serviceProvider.ShellProviderRegistry.GetAssetAdministrationShellServiceProvider(entity.Id).Entity;
+                _shellRegistry.CreateAssetAdministrationShellRegistration(aasProvider.ServiceDescriptor);
+            }
+
             return result.CreateActionResult(CrudOperation.Create, AssetAdministrationShellRepositoryRoutes.SHELLS_AAS.Replace("{aasIdentifier}", aasIdentifier));
         }
 

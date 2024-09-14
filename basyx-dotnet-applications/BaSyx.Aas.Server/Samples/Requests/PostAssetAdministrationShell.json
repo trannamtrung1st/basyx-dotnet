@@ -1,0 +1,30 @@
+{
+    "id": "ahi/temp_sensor_1",
+    "category": "sensor",
+    "idShort": "temp_sensor_1",
+    "displayName": [
+        {
+            "language": "en-US",
+            "text": "Temperature sensor 1"
+        }
+    ],
+    "description": [
+        {
+            "language": "en-US",
+            "text": "This is a temperature sensor"
+        }
+    ],
+    "modelType": "AssetAdministrationShell",
+    "administration": {
+        "version": "1.0.0",
+        "revision": "1"
+    },
+    "assetInformation": {
+        "assetKind": "Instance",
+        "globalAssetId": "org/assets/temp_sensor_1",
+        "defaultThumbnail": {
+            "path": "https://5.imimg.com/data5/JB/SG/ER/SELLER-38701987/temperature-sensor-500x500.jpg",
+            "contentType": "image/jpg"
+        }
+    }
+}

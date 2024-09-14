@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.Utils\BaSyx.Utils.csproj" />
+    <ProjectReference Include="..\..\basyx-dotnet-sdk\BaSyx.Models\BaSyx.Models.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

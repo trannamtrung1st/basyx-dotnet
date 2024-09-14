@@ -52,7 +52,7 @@ namespace BaSyx.Models.AdminShell
                     fullIdShortPath.Split(new char[] { PATH_SEPERATOR }, StringSplitOptions.RemoveEmptyEntries);
                 return GenerateStackFromSplittedPath(splittedPath);
             }
-            catch (InvalidDataException e)
+            catch (InvalidDataException)
             {
                 Console.WriteLine($"Element with index {fullIdShortPath} does not exist.");
                 throw;
