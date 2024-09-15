@@ -2189,6 +2189,229 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "AAS samples",
+			"item": [
+				{
+					"name": "Create AAS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"ahi/temp_sensor_1\",\n  \"category\": \"sensor\",\n  \"idShort\": \"temp_sensor_1\",\n  \"displayName\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"Temperature sensor 1\"\n    }\n  ],\n  \"description\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"This is a temperature sensor\"\n    }\n  ],\n  \"modelType\": \"AssetAdministrationShell\",\n  \"administration\": {\n    \"version\": \"1.0.0\",\n    \"revision\": \"1\"\n  },\n  \"assetInformation\": {\n    \"assetKind\": \"Instance\",\n    \"globalAssetId\": \"org/assets/temp_sensor_1\",\n    \"defaultThumbnail\": {\n      \"path\": \"https://5.imimg.com/data5/JB/SG/ER/SELLER-38701987/temperature-sensor-500x500.jpg\",\n      \"contentType\": \"image/jpg\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7777/shells",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"shells"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Submodel",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"category\": \"measurement\",\n  \"idShort\": \"measurement\",\n  \"displayName\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"Measurement\"\n    }\n  ],\n  \"description\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"Measurement data\"\n    }\n  ],\n  \"modelType\": \"Submodel\",\n  \"administration\": {\n    \"version\": \"1.0.0\",\n    \"revision\": \"1\"\n  },\n  \"id\": \"ahi/temp_sensor_1/measurement\",\n  \"kind\": \"Instance\",\n  \"qualifiers\": [],\n  \"submodelElements\": [\n    {\n      \"displayName\": [\n        {\n          \"language\": \"en-US\",\n          \"text\": \"Measurement data\"\n        }\n      ],\n      \"valueType\": \"string\",\n      \"value\": \"Temperature\",\n      \"modelType\": \"Property\",\n      \"idShort\": \"measurement_data\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7777/submodels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"submodels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Submodel References",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"ModelReference\",\n  \"keys\": [\n    {\n      \"type\": \"Submodel\",\n      \"value\": \"ahi/temp_sensor_1/measurement\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7777/shells/YWhpL3RlbXBfc2Vuc29yXzE%3D/submodel-refs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"shells",
+								"YWhpL3RlbXBfc2Vuc29yXzE%3D",
+								"submodel-refs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create SME (Reference)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"displayName\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"Reference measurement data\"\n    }\n  ],\n  \"value\": {\n    \"type\": \"ModelReference\",\n    \"keys\": [\n      {\n        \"type\": \"SubmodelElement\",\n        \"value\": \"ahi/temp_sensor_1/measurement/measurement_data\"\n      }\n    ]\n  },\n  \"modelType\": \"ReferenceElement\",\n  \"idShort\": \"reference_measurement_data\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7777/submodels/YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D/submodel-elements",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"submodels",
+								"YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D",
+								"submodel-elements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create SME (Property)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"displayName\": [\n    {\n      \"language\": \"en-US\",\n      \"text\": \"Department\"\n    }\n  ],\n  \"valueType\": \"string\",\n  \"value\": \"Engineering\",\n  \"modelType\": \"Property\",\n  \"idShort\": \"department\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:7777/submodels/YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D/submodel-elements",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"submodels",
+								"YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D",
+								"submodel-elements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete SME (Reference)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:7777/submodels/YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D/submodel-elements/reference_measurement_data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "7777",
+							"path": [
+								"submodels",
+								"YWhpL3RlbXBfc2Vuc29yXzEvbWVhc3VyZW1lbnQ%3D",
+								"submodel-elements",
+								"reference_measurement_data"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

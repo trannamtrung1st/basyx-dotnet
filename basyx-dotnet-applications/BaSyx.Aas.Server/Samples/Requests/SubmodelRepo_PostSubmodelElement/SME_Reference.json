@@ -1,0 +1,19 @@
+{
+    "displayName": [
+        {
+            "language": "en-US",
+            "text": "Reference measurement data"
+        }
+    ],
+    "value": {
+        "type": "ModelReference",
+        "keys": [
+            {
+                "type": "SubmodelElement",
+                "value": "ahi/temp_sensor_1/measurement/measurement_data"
+            }
+        ]
+    },
+    "modelType": "ReferenceElement",
+    "idShort": "reference_measurement_data"
+}

@@ -1,0 +1,12 @@
+{
+    "displayName": [
+        {
+            "language": "en-US",
+            "text": "Department"
+        }
+    ],
+    "valueType": "string",
+    "value": "Engineering",
+    "modelType": "Property",
+    "idShort": "department"
+}
